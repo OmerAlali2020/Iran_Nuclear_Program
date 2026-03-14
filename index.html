@@ -178,8 +178,18 @@
 
     .chart-wrap {
       position: relative;
-      height: 640px;
       padding: 4px 4px 10px;
+    }
+
+    .chart-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chart-inner {
+      min-width: 1100px;
+      height: 640px;
     }
 
     svg {
@@ -363,18 +373,61 @@
         grid-template-columns: repeat(2, minmax(160px, 1fr));
       }
 
-      .chart-wrap {
+      .chart-inner {
         height: 540px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .chart-card {
+        padding: 10px 10px 8px;
+      }
+
+      .chart-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .chart-title {
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+
+      .chart-desc {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .legend {
+        gap: 8px;
+        justify-content: flex-start;
+      }
+
+      .legend-item {
+        font-size: 11px;
+      }
+
+      .chart-inner {
+        min-width: 980px;
+        height: 420px;
+      }
+
+      .axis-text,
+      .y-title,
+      .x-title {
+        font-size: 11px;
+      }
+
+      .foot {
+        font-size: 11px;
+        line-height: 1.6;
       }
     }
 
     @media (max-width: 640px) {
       .top-stats {
         grid-template-columns: 1fr;
-      }
-
-      .chart-wrap {
-        height: 440px;
       }
 
       .tooltip {
@@ -443,7 +496,11 @@
         </div>
 
         <div class="chart-wrap" id="chartWrap">
-          <svg id="chart" viewBox="0 0 1100 640" preserveAspectRatio="none"></svg>
+          <div class="chart-scroll" id="chartScroll">
+            <div class="chart-inner">
+              <svg id="chart" viewBox="0 0 1100 640" preserveAspectRatio="none"></svg>
+            </div>
+          </div>
           <div id="tooltip" class="tooltip"></div>
         </div>
 
@@ -723,7 +780,9 @@
     const metricConfig = {
       enrichment: {
         label: "רמת העשרה מקסימלית (%)",
+        mobileLabel: "רמת העשרה (%)",
         description: "מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60%.",
+        mobileDescription: "מ־JCPOA ל־20% ול־60%.",
         accessor: d => d.enrichment,
         max: 60,
         tickStep: 10,
@@ -788,6 +847,29 @@
       const max = metricConfig[metric].max;
       return dims.margin.top + innerH - (value / max) * innerH;
     };
+
+    const mobileImportantDates = new Set([
+      "2015-07-14",
+      "2018-05-08",
+      "2019-07-10",
+      "2021-01-04",
+      "2021-04-17",
+      "2022-05-10",
+      "2024-11-19",
+      "2025-06-13"
+    ]);
+
+    const isMobileViewport = () => window.innerWidth <= 768;
+
+    function getYearTicks() {
+      return isMobileViewport()
+        ? ["2015-01-01", "2017-01-01", "2019-01-01", "2021-01-01", "2023-01-01", "2025-01-01"]
+        : [
+            "2015-01-01", "2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01",
+            "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01",
+            "2025-01-01", "2026-01-01"
+          ];
+    }
 
     function createEl(name, attrs = {}, parent) {
       const el = document.createElementNS("http://www.w3.org/2000/svg", name);
@@ -905,8 +987,10 @@
     function render() {
       clearSvg();
 
-      chartTitle.textContent = metricConfig[activeMetric].label;
-      chartDesc.textContent = metricConfig[activeMetric].description;
+      const metricMeta = metricConfig[activeMetric];
+      const mobile = isMobileViewport();
+      chartTitle.textContent = mobile && metricMeta.mobileLabel ? metricMeta.mobileLabel : metricMeta.label;
+      chartDesc.textContent = mobile && metricMeta.mobileDescription ? metricMeta.mobileDescription : metricMeta.description;
 
       createEl("rect", {
         x: 0, y: 0, width: dims.width, height: dims.height, fill: "transparent"
@@ -996,11 +1080,7 @@
           `${v}`;
       }
 
-      const yearTicks = [
-        "2015-01-01","2016-01-01","2017-01-01","2018-01-01","2019-01-01",
-        "2020-01-01","2021-01-01","2022-01-01","2023-01-01","2024-01-01",
-        "2025-01-01","2026-01-01"
-      ];
+      const yearTicks = getYearTicks();
 
       yearTicks.forEach(t => {
         const x = xScale(toTs(t));
@@ -1044,7 +1124,7 @@
         transform: `rotate(-90 18 ${dims.margin.top + innerH / 2})`,
         class: "y-title"
       }, svg);
-      yTitle.textContent = metricConfig[activeMetric].label;
+      yTitle.textContent = mobile && metricMeta.mobileLabel ? metricMeta.mobileLabel : metricMeta.label;
 
       const xTitle = createEl("text", {
         x: dims.margin.left + innerW / 2,
@@ -1077,7 +1157,12 @@
         "stroke-linejoin": "round"
       }, svg);
 
-      visibleData.forEach((d, i) => {
+      const pointsToRender = mobile
+        ? visibleData.filter((d, idx) => mobileImportantDates.has(d.date) || idx === activeIndex)
+        : visibleData;
+
+      pointsToRender.forEach(d => {
+        const i = visibleData.findIndex(item => item.date === d.date);
         const x = xScale(toTs(d.date));
         const y = yScale(metricConfig[activeMetric].accessor(d), activeMetric);
         const isActive = i === activeIndex;
@@ -1113,32 +1198,34 @@
             "stroke-dasharray": "5 5"
           }, svg);
 
-          const val = metricConfig[activeMetric].format(metricConfig[activeMetric].accessor(d));
-          const labelW = Math.max(92, val.length * 9);
-          const labelX = Math.min(
-            Math.max(x - labelW / 2, dims.margin.left),
-            dims.width - dims.margin.right - labelW
-          );
-          const labelY = Math.max(dims.margin.top + 8, y - 42);
+          if (!mobile) {
+            const val = metricConfig[activeMetric].format(metricConfig[activeMetric].accessor(d));
+            const labelW = Math.max(92, val.length * 9);
+            const labelX = Math.min(
+              Math.max(x - labelW / 2, dims.margin.left),
+              dims.width - dims.margin.right - labelW
+            );
+            const labelY = Math.max(dims.margin.top + 8, y - 42);
 
-          createEl("rect", {
-            x: labelX,
-            y: labelY,
-            width: labelW,
-            height: 28,
-            rx: 10,
-            ry: 10,
-            fill: "rgba(139,92,246,0.20)",
-            stroke: "rgba(139,92,246,0.45)"
-          }, svg);
+            createEl("rect", {
+              x: labelX,
+              y: labelY,
+              width: labelW,
+              height: 28,
+              rx: 10,
+              ry: 10,
+              fill: "rgba(139,92,246,0.20)",
+              stroke: "rgba(139,92,246,0.45)"
+            }, svg);
 
-          const text = createEl("text", {
-            x: labelX + labelW / 2,
-            y: labelY + 18,
-            "text-anchor": "middle",
-            class: "axis-text"
-          }, svg);
-          text.textContent = val;
+            const text = createEl("text", {
+              x: labelX + labelW / 2,
+              y: labelY + 18,
+              "text-anchor": "middle",
+              class: "axis-text"
+            }, svg);
+            text.textContent = val;
+          }
 
           requestAnimationFrame(() => {
             const svgRect = svg.getBoundingClientRect();
@@ -1162,6 +1249,11 @@
     });
 
     chartWrap.addEventListener("mouseleave", hideTooltip);
+
+    window.addEventListener("resize", () => {
+      hideTooltip();
+      render();
+    });
 
     render();
   </script>
