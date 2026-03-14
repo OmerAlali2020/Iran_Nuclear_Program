@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iran Nuclear Timeline by Presidents</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a31;
+      --panel-2: #18233f;
+      --text: #eef3ff;
+      --muted: #a9b7d6;
+      --line: #7cc7ff;
+      --accent: #8b5cf6;
+      --accent-2: #22c55e;
+      --grid: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 12px 40px rgba(0,0,0,0.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(139,92,246,0.18), transparent 24%),
+        radial-gradient(circle at top left, rgba(124,199,255,0.12), transparent 25%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+
+    .header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 980px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 18px 0 22px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .btn.active {
+      background: linear-gradient(135deg, rgba(124,199,255,0.22), rgba(139,92,246,0.22));
+      border-color: rgba(124,199,255,0.35);
+    }
+
+    .top-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat .value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-card {
+      padding: 14px 14px 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      padding: 6px 8px 8px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .chart-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 640px;
+      padding: 4px 4px 10px;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .tooltip {
+      position: absolute;
+      min-width: 260px;
+      max-width: 340px;
+      pointer-events: none;
+      background: rgba(8, 12, 24, 0.95);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 12px 12px 10px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.36);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.14s ease, transform 0.14s ease;
+      z-index: 5;
+    }
+
+    .tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tt-date {
+      color: #7cc7ff;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .tt-event {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .tt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .tt-grid strong {
+      color: var(--text);
+      display: block;
+      margin-top: 2px;
+      font-size: 13px;
+    }
+
+    .side {
+      display: grid;
+      gap: 16px;
+    }
+
+    .side-card {
+      padding: 16px;
+    }
+
+    .side-title {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .note {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .timeline-list {
+      display: grid;
+      gap: 10px;
+      max-height: 760px;
+      overflow: auto;
+      padding-left: 4px;
+    }
+
+    .item {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .item:hover,
+    .item.active {
+      background: rgba(124,199,255,0.10);
+      border-color: rgba(124,199,255,0.24);
+      transform: translateY(-1px);
+    }
+
+    .item-date {
+      color: #7cc7ff;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .item-title {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .foot {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .axis-text {
+      fill: rgba(238,243,255,0.82);
+      font-size: 12px;
+    }
+
+    .grid-line {
+      stroke: var(--grid);
+      stroke-width: 1;
+    }
+
+    .domain-line {
+      stroke: rgba(255,255,255,0.2);
+      stroke-width: 1.2;
+    }
+
+    .band-label {
+      fill: rgba(255,255,255,0.72);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .point {
+      cursor: pointer;
+    }
+
+    .y-title, .x-title {
+      fill: rgba(255,255,255,0.7);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pres-line {
+      stroke: rgba(139,92,246,0.6);
+      stroke-width: 1.2;
+      stroke-dasharray: 6 6;
+    }
+
+    .pres-label {
+      fill: rgba(139,92,246,0.95);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .top-stats {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+      }
+
+      .chart-wrap {
+        height: 540px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .top-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap {
+        height: 440px;
+      }
+
+      .tooltip {
+        min-width: 220px;
+        max-width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1 class="title">התקדמות תוכנית הגרעין האיראנית לפי תקופת נשיאים</h1>
+      <p class="subtitle">
+        גרף מדרגות אינטראקטיבי של נקודות המפתח בתוכנית הגרעין האיראנית בין 2015 ל־2026.
+        כאן השינוי מוצג כרגעים בדידים בזמן, כדי לא ליצור אשליה של עלייה הדרגתית בתוך תקופה נשיאותית שלא באמת קרתה.
+      </p>
+    </div>
+
+    <div class="controls">
+      <button class="btn active" data-metric="enrichment">רמת העשרה מקסימלית (%)</button>
+      <button class="btn" data-metric="stock60">מלאי אורניום 60% (ק״ג)</button>
+      <button class="btn" data-metric="sq">SQ משוער</button>
+    </div>
+
+    <div class="top-stats">
+      <div class="stat">
+        <div class="label">רמת ההעשרה המקסימלית</div>
+        <div class="value" id="maxEnrichment">60%</div>
+      </div>
+      <div class="stat">
+        <div class="label">מלאי 60% הגבוה ביותר</div>
+        <div class="value" id="maxStock">440.9 ק״ג</div>
+      </div>
+      <div class="stat">
+        <div class="label">SQ פומבי אחרון</div>
+        <div class="value" id="maxSq">10.5</div>
+      </div>
+      <div class="stat">
+        <div class="label">טווח זמנים</div>
+        <div class="value">2015–2026</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div>
+            <h2 class="chart-title" id="chartTitle">רמת העשרה מקסימלית (%)</h2>
+            <p class="chart-desc" id="chartDesc">מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60%.</p>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <span class="swatch" style="background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15)"></span>
+              רצועות נשיאי ארה״ב
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background: var(--line)"></span>
+              קו מדרגות
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background: var(--accent)"></span>
+              נקודת אירוע
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-wrap" id="chartWrap">
+          <svg id="chart" viewBox="0 0 1100 640" preserveAspectRatio="none"></svg>
+          <div id="tooltip" class="tooltip"></div>
+        </div>
+
+        <div class="foot">
+          SQ מחושב כאן בקירוב כ־<strong>מלאי 60% / 42</strong>. זה מדד תיאורטי מקובל בשיח הפומבי, לא “פצצות מוכנות”.
+          נקודת מעבר נשיאותית של <strong>20.01.2021</strong> נוספה בכוונה כדי למנוע ייחוס ויזואלי שגוי של שינויי 2021 לתקופת טראמפ.
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="card side-card">
+          <h3 class="side-title">מה תוקן כאן</h3>
+          <p class="note">
+            הגרף הוא עכשיו <strong>Step Chart</strong> ולא קו אלכסוני רציף. לכן 4.5% נשאר שטוח עד ינואר 2021,
+            אחר כך יש קפיצה ל־20%, ורק באפריל 2021 קפיצה נפרדת ל־60%.
+          </p>
+        </div>
+
+        <div class="card side-card">
+          <h3 class="side-title">נקודות מפתח</h3>
+          <div class="timeline-list" id="timelineList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      {
+        date: "2015-07-14",
+        label: "14.07.2015",
+        event: "חתימת JCPOA — תקרת העשרה 3.67% ומגבלת מלאי.",
+        enrichment: 3.67,
+        stock60: 0,
+        sq: 0,
+        usPresident: "ברק אובמה",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2016-01-16",
+        label: "16.01.2016",
+        event: "Implementation Day — איראן בתוך מגבלות ההסכם.",
+        enrichment: 3.67,
+        stock60: 0,
+        sq: 0,
+        usPresident: "ברק אובמה",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2018-05-08",
+        label: "08.05.2018",
+        event: "ארה״ב יוצאת מההסכם.",
+        enrichment: 3.67,
+        stock60: 0,
+        sq: 0,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2019-07-01",
+        label: "01.07.2019",
+        event: "איראן עוברת את מגבלת המלאי של ההסכם.",
+        enrichment: 3.67,
+        stock60: 0,
+        sq: 0,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2019-07-10",
+        label: "10.07.2019",
+        event: "איראן עולה ל־4.5% העשרה.",
+        enrichment: 4.5,
+        stock60: 0,
+        sq: 0,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2021-01-04",
+        label: "04.01.2021",
+        event: "חזרה להעשרה ל־20% בפורדו.",
+        enrichment: 20,
+        stock60: 0,
+        sq: 0,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2021-01-20",
+        label: "20.01.2021",
+        event: "כניסת ביידן לתפקיד — ללא שינוי מיידי בערך, רק מעבר נשיאותי.",
+        enrichment: 20,
+        stock60: 0,
+        sq: 0,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "חסן רוחאני",
+        visible: false,
+        isTransition: true
+      },
+      {
+        date: "2021-04-17",
+        label: "17.04.2021",
+        event: "תחילת העשרה ל־60% בנתנז.",
+        enrichment: 60,
+        stock60: 0,
+        sq: 0,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "חסן רוחאני",
+        visible: true
+      },
+      {
+        date: "2022-05-10",
+        label: "10.05.2022",
+        event: "בערך SQ1 — כ־42 ק״ג ב־60%.",
+        enrichment: 60,
+        stock60: 42,
+        sq: 1.0,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2022-09-07",
+        label: "07.09.2022",
+        event: "55.6 ק״ג ב־60% — מעל SQ1.",
+        enrichment: 60,
+        stock60: 55.6,
+        sq: 1.32,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2022-11-22",
+        label: "22.11.2022",
+        event: "גם פורדו מתחיל להעשיר ל־60%.",
+        enrichment: 60,
+        stock60: 55.6,
+        sq: 1.32,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2023-02-28",
+        label: "28.02.2023",
+        event: "87.5 ק״ג ב־60% — SQ2.",
+        enrichment: 60,
+        stock60: 87.5,
+        sq: 2.08,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2023-05-31",
+        label: "31.05.2023",
+        event: "114.1 ק״ג ב־60%.",
+        enrichment: 60,
+        stock60: 114.1,
+        sq: 2.72,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2023-11-15",
+        label: "15.11.2023",
+        event: "128.3 ק״ג ב־60% — SQ3.",
+        enrichment: 60,
+        stock60: 128.3,
+        sq: 3.05,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2024-02-26",
+        label: "26.02.2024",
+        event: "ירידה זמנית ל־121.5 ק״ג ב־60%.",
+        enrichment: 60,
+        stock60: 121.5,
+        sq: 2.89,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "אבראהים ראיסי",
+        visible: true
+      },
+      {
+        date: "2024-08-29",
+        label: "29.08.2024",
+        event: "164.7 ק״ג ב־60% — כמעט SQ4.",
+        enrichment: 60,
+        stock60: 164.7,
+        sq: 3.92,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "מסעוד פזשכיאן",
+        visible: true
+      },
+      {
+        date: "2024-11-19",
+        label: "19.11.2024",
+        event: "182.3 ק״ג ב־60% — SQ4.",
+        enrichment: 60,
+        stock60: 182.3,
+        sq: 4.34,
+        usPresident: "ג׳ו ביידן",
+        iranPresident: "מסעוד פזשכיאן",
+        visible: true
+      },
+      {
+        date: "2025-02-26",
+        label: "26.02.2025",
+        event: "274.8 ק״ג ב־60% — SQ5–SQ6.",
+        enrichment: 60,
+        stock60: 274.8,
+        sq: 6.54,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "מסעוד פזשכיאן",
+        visible: true
+      },
+      {
+        date: "2025-05-17",
+        label: "17.05.2025",
+        event: "408.6 ק״ג ב־60% — SQ7–SQ9.",
+        enrichment: 60,
+        stock60: 408.6,
+        sq: 9.73,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "מסעוד פזשכיאן",
+        visible: true
+      },
+      {
+        date: "2025-06-13",
+        label: "13.06.2025",
+        event: "440.9 ק״ג ב־60% — SQ10.",
+        enrichment: 60,
+        stock60: 440.9,
+        sq: 10.50,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "מסעוד פזשכיאן",
+        visible: true
+      },
+      {
+        date: "2026-02-27",
+        label: "27.02.2026",
+        event: "המצב הפומבי האחרון — עדיין אומדן של 440.9 ק״ג ב־60%.",
+        enrichment: 60,
+        stock60: 440.9,
+        sq: 10.50,
+        usPresident: "דונלד טראמפ",
+        iranPresident: "מסעוד פזשכיאן",
+        visible: true
+      }
+    ];
+
+    const usBands = [
+      { name: "אובמה", start: "2015-01-01", end: "2017-01-20", color: "rgba(124, 199, 255, 0.08)" },
+      { name: "טראמפ", start: "2017-01-20", end: "2021-01-20", color: "rgba(255, 107, 107, 0.08)" },
+      { name: "ביידן", start: "2021-01-20", end: "2025-01-20", color: "rgba(34, 197, 94, 0.08)" },
+      { name: "טראמפ 2", start: "2025-01-20", end: "2026-12-31", color: "rgba(245, 158, 11, 0.08)" }
+    ];
+
+    const transitionMarkers = [
+      {
+        date: "2021-01-20",
+        label: "כניסת ביידן"
+      }
+    ];
+
+    const metricConfig = {
+      enrichment: {
+        label: "רמת העשרה מקסימלית (%)",
+        description: "מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60%.",
+        accessor: d => d.enrichment,
+        max: 60,
+        tickStep: 10,
+        format: v => `${v.toFixed(v % 1 === 0 ? 0 : 2)}%`
+      },
+      stock60: {
+        label: "מלאי אורניום 60% (ק״ג)",
+        description: "כמות החומר המועשר ל־60% לפי נקודות הזמן הפומביות המרכזיות.",
+        accessor: d => d.stock60,
+        max: 480,
+        tickStep: 80,
+        format: v => `${v.toFixed(1)} ק״ג`
+      },
+      sq: {
+        label: "SQ משוער",
+        description: "חישוב בקירוב: מלאי 60% חלקי 42. זה מדד תיאורטי, לא נשק מבצעי.",
+        accessor: d => d.sq,
+        max: 12,
+        tickStep: 2,
+        format: v => v.toFixed(2)
+      }
+    };
+
+    const visibleData = data.filter(d => d.visible !== false);
+    const allDataForPath = data;
+
+    const svg = document.getElementById("chart");
+    const tooltip = document.getElementById("tooltip");
+    const chartWrap = document.getElementById("chartWrap");
+    const timelineList = document.getElementById("timelineList");
+    const chartTitle = document.getElementById("chartTitle");
+    const chartDesc = document.getElementById("chartDesc");
+    const buttons = document.querySelectorAll(".btn");
+
+    document.getElementById("maxEnrichment").textContent =
+      `${Math.max(...visibleData.map(d => d.enrichment)).toFixed(0)}%`;
+    document.getElementById("maxStock").textContent =
+      `${Math.max(...visibleData.map(d => d.stock60)).toFixed(1)} ק״ג`;
+    document.getElementById("maxSq").textContent =
+      `${Math.max(...visibleData.map(d => d.sq)).toFixed(1)}`;
+
+    let activeMetric = "enrichment";
+    let activeIndex = visibleData.length - 1;
+
+    const parseDate = d => new Date(d + "T00:00:00");
+    const toTs = d => parseDate(d).getTime();
+
+    const tsMin = toTs("2015-01-01");
+    const tsMax = toTs("2026-12-31");
+
+    const dims = {
+      width: 1100,
+      height: 640,
+      margin: { top: 24, right: 24, bottom: 68, left: 78 }
+    };
+
+    const innerW = dims.width - dims.margin.left - dims.margin.right;
+    const innerH = dims.height - dims.margin.top - dims.margin.bottom;
+
+    const xScale = ts => dims.margin.left + ((ts - tsMin) / (tsMax - tsMin)) * innerW;
+    const yScale = (value, metric) => {
+      const max = metricConfig[metric].max;
+      return dims.margin.top + innerH - (value / max) * innerH;
+    };
+
+    function createEl(name, attrs = {}, parent) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+      for (const [k, v] of Object.entries(attrs)) {
+        el.setAttribute(k, v);
+      }
+      if (parent) parent.appendChild(el);
+      return el;
+    }
+
+    function clearSvg() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+    }
+
+    function buildTimelineList() {
+      timelineList.innerHTML = "";
+      visibleData.forEach((d, i) => {
+        const item = document.createElement("div");
+        item.className = "item" + (i === activeIndex ? " active" : "");
+        item.innerHTML = `
+          <div class="item-date">${d.label}</div>
+          <div class="item-title">${d.event}</div>
+          <div class="item-meta">
+            <span>ארה״ב: ${d.usPresident}</span>
+            <span>איראן: ${d.iranPresident}</span>
+          </div>
+        `;
+        item.addEventListener("mouseenter", () => {
+          activeIndex = i;
+          render();
+        });
+        item.addEventListener("click", () => {
+          activeIndex = i;
+          render();
+        });
+        timelineList.appendChild(item);
+      });
+    }
+
+    function stepPathFromData(metric) {
+      const points = allDataForPath.map(d => {
+        const x = xScale(toTs(d.date));
+        const y = yScale(metricConfig[metric].accessor(d), metric);
+        return [x, y];
+      });
+
+      if (!points.length) return "";
+
+      let d = `M ${points[0][0]} ${points[0][1]}`;
+      for (let i = 1; i < points.length; i++) {
+        const [x, y] = points[i];
+        const [, prevY] = points[i - 1];
+        d += ` L ${x} ${prevY}`;
+        d += ` L ${x} ${y}`;
+      }
+      return d;
+    }
+
+    function stepAreaPathFromData(metric) {
+      const points = allDataForPath.map(d => {
+        const x = xScale(toTs(d.date));
+        const y = yScale(metricConfig[metric].accessor(d), metric);
+        return [x, y];
+      });
+
+      if (!points.length) return "";
+
+      let d = `M ${points[0][0]} ${dims.margin.top + innerH}`;
+      d += ` L ${points[0][0]} ${points[0][1]}`;
+
+      for (let i = 1; i < points.length; i++) {
+        const [x, y] = points[i];
+        const [, prevY] = points[i - 1];
+        d += ` L ${x} ${prevY}`;
+        d += ` L ${x} ${y}`;
+      }
+
+      d += ` L ${points[points.length - 1][0]} ${dims.margin.top + innerH} Z`;
+      return d;
+    }
+
+    function showTooltip(d, x, y) {
+      tooltip.innerHTML = `
+        <div class="tt-date">${d.label}</div>
+        <div class="tt-event">${d.event}</div>
+        <div class="tt-grid">
+          <div>נשיא ארה״ב<strong>${d.usPresident}</strong></div>
+          <div>נשיא איראן<strong>${d.iranPresident}</strong></div>
+          <div>רמת העשרה<strong>${d.enrichment.toFixed(d.enrichment % 1 === 0 ? 0 : 2)}%</strong></div>
+          <div>מלאי 60%<strong>${d.stock60.toFixed(1)} ק״ג</strong></div>
+          <div>SQ משוער<strong>${d.sq.toFixed(2)}</strong></div>
+          <div>מדד מוצג עכשיו<strong>${metricConfig[activeMetric].format(metricConfig[activeMetric].accessor(d))}</strong></div>
+        </div>
+      `;
+      tooltip.classList.add("show");
+
+      const rect = chartWrap.getBoundingClientRect();
+      const tw = 300;
+      const th = 180;
+      let left = x + 18;
+      let top = y - 10;
+
+      if (left + tw > rect.width) left = x - tw - 18;
+      if (top + th > rect.height) top = rect.height - th - 10;
+      if (top < 10) top = 10;
+
+      tooltip.style.left = left + "px";
+      tooltip.style.top = top + "px";
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove("show");
+    }
+
+    function render() {
+      clearSvg();
+
+      chartTitle.textContent = metricConfig[activeMetric].label;
+      chartDesc.textContent = metricConfig[activeMetric].description;
+
+      createEl("rect", {
+        x: 0, y: 0, width: dims.width, height: dims.height, fill: "transparent"
+      }, svg);
+
+      const defs = createEl("defs", {}, svg);
+      const grad = createEl("linearGradient", {
+        id: "areaGrad",
+        x1: "0", y1: "0", x2: "0", y2: "1"
+      }, defs);
+
+      createEl("stop", {
+        offset: "0%",
+        "stop-color": "#7cc7ff",
+        "stop-opacity": "0.24"
+      }, grad);
+
+      createEl("stop", {
+        offset: "100%",
+        "stop-color": "#7cc7ff",
+        "stop-opacity": "0.02"
+      }, grad);
+
+      usBands.forEach(band => {
+        const x1 = xScale(toTs(band.start));
+        const x2 = xScale(toTs(band.end));
+
+        createEl("rect", {
+          x: x1,
+          y: dims.margin.top,
+          width: Math.max(0, x2 - x1),
+          height: innerH,
+          fill: band.color
+        }, svg);
+
+        const text = createEl("text", {
+          x: x1 + 8,
+          y: dims.margin.top + 18,
+          class: "band-label"
+        }, svg);
+        text.textContent = band.name;
+      });
+
+      transitionMarkers.forEach(marker => {
+        const x = xScale(toTs(marker.date));
+
+        createEl("line", {
+          x1: x,
+          y1: dims.margin.top,
+          x2: x,
+          y2: dims.margin.top + innerH,
+          class: "pres-line"
+        }, svg);
+
+        const text = createEl("text", {
+          x: x + 6,
+          y: dims.margin.top + 32,
+          class: "pres-label"
+        }, svg);
+        text.textContent = marker.label;
+      });
+
+      const max = metricConfig[activeMetric].max;
+      const step = metricConfig[activeMetric].tickStep;
+
+      for (let v = 0; v <= max; v += step) {
+        const y = yScale(v, activeMetric);
+
+        createEl("line", {
+          x1: dims.margin.left,
+          y1: y,
+          x2: dims.width - dims.margin.right,
+          y2: y,
+          class: "grid-line"
+        }, svg);
+
+        const txt = createEl("text", {
+          x: dims.margin.left - 10,
+          y: y + 4,
+          "text-anchor": "end",
+          class: "axis-text"
+        }, svg);
+
+        txt.textContent =
+          activeMetric === "enrichment" ? `${v}%` :
+          activeMetric === "stock60" ? `${v}` :
+          `${v}`;
+      }
+
+      const yearTicks = [
+        "2015-01-01","2016-01-01","2017-01-01","2018-01-01","2019-01-01",
+        "2020-01-01","2021-01-01","2022-01-01","2023-01-01","2024-01-01",
+        "2025-01-01","2026-01-01"
+      ];
+
+      yearTicks.forEach(t => {
+        const x = xScale(toTs(t));
+
+        createEl("line", {
+          x1: x,
+          y1: dims.margin.top,
+          x2: x,
+          y2: dims.margin.top + innerH,
+          class: "grid-line"
+        }, svg);
+
+        const txt = createEl("text", {
+          x,
+          y: dims.margin.top + innerH + 24,
+          "text-anchor": "middle",
+          class: "axis-text"
+        }, svg);
+        txt.textContent = t.slice(0, 4);
+      });
+
+      createEl("line", {
+        x1: dims.margin.left,
+        y1: dims.margin.top + innerH,
+        x2: dims.width - dims.margin.right,
+        y2: dims.margin.top + innerH,
+        class: "domain-line"
+      }, svg);
+
+      createEl("line", {
+        x1: dims.margin.left,
+        y1: dims.margin.top,
+        x2: dims.margin.left,
+        y2: dims.margin.top + innerH,
+        class: "domain-line"
+      }, svg);
+
+      const yTitle = createEl("text", {
+        x: 18,
+        y: dims.margin.top + innerH / 2,
+        transform: `rotate(-90 18 ${dims.margin.top + innerH / 2})`,
+        class: "y-title"
+      }, svg);
+      yTitle.textContent = metricConfig[activeMetric].label;
+
+      const xTitle = createEl("text", {
+        x: dims.margin.left + innerW / 2,
+        y: dims.height - 12,
+        "text-anchor": "middle",
+        class: "x-title"
+      }, svg);
+      xTitle.textContent = "ציר זמן";
+
+      createEl("path", {
+        d: stepAreaPathFromData(activeMetric),
+        fill: "url(#areaGrad)"
+      }, svg);
+
+      createEl("path", {
+        d: stepPathFromData(activeMetric),
+        fill: "none",
+        stroke: "rgba(124,199,255,0.18)",
+        "stroke-width": 10,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+      }, svg);
+
+      createEl("path", {
+        d: stepPathFromData(activeMetric),
+        fill: "none",
+        stroke: "var(--line)",
+        "stroke-width": 4,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+      }, svg);
+
+      visibleData.forEach((d, i) => {
+        const x = xScale(toTs(d.date));
+        const y = yScale(metricConfig[activeMetric].accessor(d), activeMetric);
+        const isActive = i === activeIndex;
+
+        const point = createEl("circle", {
+          cx: x,
+          cy: y,
+          r: isActive ? 8 : 5,
+          fill: isActive ? "var(--accent)" : "#e9f1ff",
+          stroke: isActive ? "#ffffff" : "rgba(255,255,255,0.4)",
+          "stroke-width": isActive ? 2 : 1.2,
+          class: "point"
+        }, svg);
+
+        point.addEventListener("mouseenter", () => {
+          activeIndex = i;
+          render();
+        });
+
+        point.addEventListener("click", () => {
+          activeIndex = i;
+          render();
+        });
+
+        if (isActive) {
+          createEl("line", {
+            x1: x,
+            y1: dims.margin.top,
+            x2: x,
+            y2: dims.margin.top + innerH,
+            stroke: "rgba(139,92,246,0.45)",
+            "stroke-width": 1.2,
+            "stroke-dasharray": "5 5"
+          }, svg);
+
+          const val = metricConfig[activeMetric].format(metricConfig[activeMetric].accessor(d));
+          const labelW = Math.max(92, val.length * 9);
+          const labelX = Math.min(
+            Math.max(x - labelW / 2, dims.margin.left),
+            dims.width - dims.margin.right - labelW
+          );
+          const labelY = Math.max(dims.margin.top + 8, y - 42);
+
+          createEl("rect", {
+            x: labelX,
+            y: labelY,
+            width: labelW,
+            height: 28,
+            rx: 10,
+            ry: 10,
+            fill: "rgba(139,92,246,0.20)",
+            stroke: "rgba(139,92,246,0.45)"
+          }, svg);
+
+          const text = createEl("text", {
+            x: labelX + labelW / 2,
+            y: labelY + 18,
+            "text-anchor": "middle",
+            class: "axis-text"
+          }, svg);
+          text.textContent = val;
+
+          requestAnimationFrame(() => {
+            const svgRect = svg.getBoundingClientRect();
+            const xPx = (x / dims.width) * svgRect.width;
+            const yPx = (y / dims.height) * svgRect.height;
+            showTooltip(d, xPx, yPx);
+          });
+        }
+      });
+
+      buildTimelineList();
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeMetric = btn.dataset.metric;
+        render();
+      });
+    });
+
+    chartWrap.addEventListener("mouseleave", hideTooltip);
+
+    render();
+  </script>
+</body>
+</html>
