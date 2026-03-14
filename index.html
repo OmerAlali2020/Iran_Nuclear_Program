@@ -31,6 +31,7 @@
         radial-gradient(circle at top left, rgba(124,199,255,0.12), transparent 25%),
         var(--bg);
       color: var(--text);
+      overflow-x: hidden;
     }
 
     .wrap {
@@ -122,6 +123,10 @@
       align-items: start;
     }
 
+    .layout > * {
+      min-width: 0;
+    }
+
     .card {
       background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
       border: 1px solid var(--border);
@@ -186,6 +191,7 @@
       overflow-x: hidden;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
+      width: 100%;
     }
 
     .chart-inner {
@@ -822,6 +828,7 @@
         min: 3,
         max: 60,
         ticks: [3, 4.5, 10, 20, 60],
+        baselineLabel: "3%",
         format: v => `${v.toFixed(v % 1 === 0 ? 0 : 2)}%`
       },
       stock60: {
@@ -891,6 +898,15 @@
       const logMax = Math.log10(max + 1);
       const ratio = (Math.log10(clampedValue + 1) - logMin) / (logMax - logMin);
       return dims.margin.top + innerH - ratio * innerH;
+    };
+
+    const getMetricTicks = metric => {
+      const cfg = metricConfig[metric];
+      const min = cfg.min ?? 0;
+      const ticks = cfg.ticks || [];
+      if (!ticks.length) return [min];
+
+      return Array.from(new Set([min, ...ticks])).sort((a, b) => a - b);
     };
 
     const mobileImportantDates = new Set([
@@ -1110,7 +1126,7 @@
         text.textContent = marker.label;
       });
 
-      const ticks = metricConfig[activeMetric].ticks;
+      const ticks = getMetricTicks(activeMetric);
 
       ticks.forEach(v => {
         const y = yScale(v, activeMetric);
@@ -1135,6 +1151,16 @@
           activeMetric === "stock60" ? `${v}` :
           `${v}`;
       });
+
+      if (activeMetric === "enrichment") {
+        const baselineY = yScale(metricMeta.min, "enrichment");
+        const baseline = createEl("text", {
+          x: dims.margin.left + 8,
+          y: baselineY - 8,
+          class: "axis-text"
+        }, svg);
+        baseline.textContent = `קו בסיס: ${metricMeta.baselineLabel}`;
+      }
 
       const yearTicks = getYearTicks();
 
