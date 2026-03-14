@@ -183,13 +183,14 @@
     }
 
     .chart-scroll {
-      overflow-x: auto;
+      overflow-x: hidden;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
     }
 
     .chart-inner {
-      min-width: 1100px;
+      width: 100%;
+      min-width: 0;
       height: 640px;
     }
 
@@ -409,6 +410,10 @@
         font-size: 11px;
       }
 
+      .chart-scroll {
+        overflow-x: auto;
+      }
+
       .chart-inner {
         min-width: 980px;
         height: 420px;
@@ -444,7 +449,7 @@
       <h1 class="title">התקדמות תוכנית הגרעין האיראנית לפי תקופת נשיאים</h1>
       <p class="subtitle">
         גרף מדרגות אינטראקטיבי של נקודות המפתח בתוכנית הגרעין האיראנית בין 2015 ל־2026.
-        כעת הציר האנכי מוצג בסקאלה לוגריתמית (log10(value+1)) כדי להדגיש גם שינויים מוקדמים וקטנים לצד הקפיצות הגדולות.
+        כעת הציר האנכי מוצג בסקאלה לוגריתמית (log10(value+1)) כדי להדגיש גם שינויים מוקדמים וקטנים לצד הקפיצות הגדולות, ובגרף ההעשרה קו הבסיס מתחיל מ־3%.
       </p>
     </div>
 
@@ -799,11 +804,12 @@
       enrichment: {
         label: "רמת העשרה מקסימלית (%)",
         mobileLabel: "רמת העשרה (%)",
-        description: "מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60% (ציר לוגריתמי).",
-        mobileDescription: "מ־JCPOA ל־20% ול־60% (לוג).",
+        description: "מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60% (ציר לוגריתמי, קו בסיס 3%).",
+        mobileDescription: "מ־JCPOA ל־20% ול־60% (לוג, בסיס 3%).",
         accessor: d => d.enrichment,
+        min: 3,
         max: 60,
-        ticks: [0, 1, 3, 10, 20, 60],
+        ticks: [3, 4.5, 10, 20, 60],
         format: v => `${v.toFixed(v % 1 === 0 ? 0 : 2)}%`
       },
       stock60: {
@@ -864,9 +870,13 @@
 
     const xScale = ts => dims.margin.left + ((ts - tsMin) / (tsMax - tsMin)) * innerW;
     const yScale = (value, metric) => {
-      const max = metricConfig[metric].max;
-      const safeValue = Math.max(0, value);
-      const ratio = Math.log10(safeValue + 1) / Math.log10(max + 1);
+      const cfg = metricConfig[metric];
+      const min = cfg.min ?? 0;
+      const max = cfg.max;
+      const clampedValue = Math.max(min, Math.min(max, value));
+      const logMin = Math.log10(min + 1);
+      const logMax = Math.log10(max + 1);
+      const ratio = (Math.log10(clampedValue + 1) - logMin) / (logMax - logMin);
       return dims.margin.top + innerH - ratio * innerH;
     };
 
