@@ -14,6 +14,7 @@
       --line: #7cc7ff;
       --accent: #8b5cf6;
       --accent-2: #22c55e;
+      --line-20: #f59e0b;
       --grid: rgba(255,255,255,0.08);
       --border: rgba(255,255,255,0.12);
       --shadow: 0 12px 40px rgba(0,0,0,0.28);
@@ -443,13 +444,13 @@
       <h1 class="title">התקדמות תוכנית הגרעין האיראנית לפי תקופת נשיאים</h1>
       <p class="subtitle">
         גרף מדרגות אינטראקטיבי של נקודות המפתח בתוכנית הגרעין האיראנית בין 2015 ל־2026.
-        כאן השינוי מוצג כרגעים בדידים בזמן, כדי לא ליצור אשליה של עלייה הדרגתית בתוך תקופה נשיאותית שלא באמת קרתה.
+        כעת הציר האנכי מוצג בסקאלה לוגריתמית (log10(value+1)) כדי להדגיש גם שינויים מוקדמים וקטנים לצד הקפיצות הגדולות.
       </p>
     </div>
 
     <div class="controls">
       <button class="btn active" data-metric="enrichment">רמת העשרה מקסימלית (%)</button>
-      <button class="btn" data-metric="stock60">מלאי אורניום 60% (ק״ג)</button>
+      <button class="btn" data-metric="stock60">מלאי אורניום 60% + 20% (ק״ג)</button>
       <button class="btn" data-metric="sq">SQ משוער</button>
     </div>
 
@@ -477,7 +478,7 @@
         <div class="chart-head">
           <div>
             <h2 class="chart-title" id="chartTitle">רמת העשרה מקסימלית (%)</h2>
-            <p class="chart-desc" id="chartDesc">מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60%.</p>
+            <p class="chart-desc" id="chartDesc">סקאלה לוגריתמית לאורך כל התקופה.</p>
           </div>
           <div class="legend">
             <div class="legend-item">
@@ -486,7 +487,11 @@
             </div>
             <div class="legend-item">
               <span class="swatch" style="background: var(--line)"></span>
-              קו מדרגות
+              קו 60%
+            </div>
+            <div class="legend-item">
+              <span class="swatch" style="background: #f59e0b"></span>
+              קו 20%
             </div>
             <div class="legend-item">
               <span class="swatch" style="background: var(--accent)"></span>
@@ -506,19 +511,11 @@
 
         <div class="foot">
           SQ מחושב כאן בקירוב כ־<strong>מלאי 60% / 42</strong>. זה מדד תיאורטי מקובל בשיח הפומבי, לא “פצצות מוכנות”.
-          נקודת מעבר נשיאותית של <strong>20.01.2021</strong> נוספה בכוונה כדי למנוע ייחוס ויזואלי שגוי של שינויי 2021 לתקופת טראמפ.
+          בנוסף לקו 60%, נוסף קו נפרד למלאי אורניום מועשר ל־20% (ק״ג) לפי נקודות זמן פומביות.
         </div>
       </div>
 
       <div class="side">
-        <div class="card side-card">
-          <h3 class="side-title">מה תוקן כאן</h3>
-          <p class="note">
-            הגרף הוא עכשיו <strong>Step Chart</strong> ולא קו אלכסוני רציף. לכן 4.5% נשאר שטוח עד ינואר 2021,
-            אחר כך יש קפיצה ל־20%, ורק באפריל 2021 קפיצה נפרדת ל־60%.
-          </p>
-        </div>
-
         <div class="card side-card">
           <h3 class="side-title">נקודות מפתח</h3>
           <div class="timeline-list" id="timelineList"></div>
@@ -535,6 +532,7 @@
         event: "חתימת JCPOA — תקרת העשרה 3.67% ומגבלת מלאי.",
         enrichment: 3.67,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "ברק אובמה",
         iranPresident: "חסן רוחאני",
@@ -546,6 +544,7 @@
         event: "Implementation Day — איראן בתוך מגבלות ההסכם.",
         enrichment: 3.67,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "ברק אובמה",
         iranPresident: "חסן רוחאני",
@@ -557,6 +556,7 @@
         event: "ארה״ב יוצאת מההסכם.",
         enrichment: 3.67,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "דונלד טראמפ",
         iranPresident: "חסן רוחאני",
@@ -568,6 +568,7 @@
         event: "איראן עוברת את מגבלת המלאי של ההסכם.",
         enrichment: 3.67,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "דונלד טראמפ",
         iranPresident: "חסן רוחאני",
@@ -579,6 +580,7 @@
         event: "איראן עולה ל־4.5% העשרה.",
         enrichment: 4.5,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "דונלד טראמפ",
         iranPresident: "חסן רוחאני",
@@ -590,6 +592,7 @@
         event: "חזרה להעשרה ל־20% בפורדו.",
         enrichment: 20,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "דונלד טראמפ",
         iranPresident: "חסן רוחאני",
@@ -601,6 +604,7 @@
         event: "כניסת ביידן לתפקיד — ללא שינוי מיידי בערך, רק מעבר נשיאותי.",
         enrichment: 20,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "ג׳ו ביידן",
         iranPresident: "חסן רוחאני",
@@ -613,6 +617,7 @@
         event: "תחילת העשרה ל־60% בנתנז.",
         enrichment: 60,
         stock60: 0,
+        stock20: 0,
         sq: 0,
         usPresident: "ג׳ו ביידן",
         iranPresident: "חסן רוחאני",
@@ -624,6 +629,7 @@
         event: "בערך SQ1 — כ־42 ק״ג ב־60%.",
         enrichment: 60,
         stock60: 42,
+        stock20: 238.4,
         sq: 1.0,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -635,6 +641,7 @@
         event: "55.6 ק״ג ב־60% — מעל SQ1.",
         enrichment: 60,
         stock60: 55.6,
+        stock20: 331.9,
         sq: 1.32,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -646,6 +653,7 @@
         event: "גם פורדו מתחיל להעשיר ל־60%.",
         enrichment: 60,
         stock60: 55.6,
+        stock20: 386.4,
         sq: 1.32,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -657,6 +665,7 @@
         event: "87.5 ק״ג ב־60% — SQ2.",
         enrichment: 60,
         stock60: 87.5,
+        stock20: 434.7,
         sq: 2.08,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -668,6 +677,7 @@
         event: "114.1 ק״ג ב־60%.",
         enrichment: 60,
         stock60: 114.1,
+        stock20: 470.0,
         sq: 2.72,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -679,6 +689,7 @@
         event: "128.3 ק״ג ב־60% — SQ3.",
         enrichment: 60,
         stock60: 128.3,
+        stock20: 567.1,
         sq: 3.05,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -690,6 +701,7 @@
         event: "ירידה זמנית ל־121.5 ק״ג ב־60%.",
         enrichment: 60,
         stock60: 121.5,
+        stock20: 712.2,
         sq: 2.89,
         usPresident: "ג׳ו ביידן",
         iranPresident: "אבראהים ראיסי",
@@ -701,6 +713,7 @@
         event: "164.7 ק״ג ב־60% — כמעט SQ4.",
         enrichment: 60,
         stock60: 164.7,
+        stock20: 751.3,
         sq: 3.92,
         usPresident: "ג׳ו ביידן",
         iranPresident: "מסעוד פזשכיאן",
@@ -712,6 +725,7 @@
         event: "182.3 ק״ג ב־60% — SQ4.",
         enrichment: 60,
         stock60: 182.3,
+        stock20: 839.2,
         sq: 4.34,
         usPresident: "ג׳ו ביידן",
         iranPresident: "מסעוד פזשכיאן",
@@ -723,6 +737,7 @@
         event: "274.8 ק״ג ב־60% — SQ5–SQ6.",
         enrichment: 60,
         stock60: 274.8,
+        stock20: 892.6,
         sq: 6.54,
         usPresident: "דונלד טראמפ",
         iranPresident: "מסעוד פזשכיאן",
@@ -734,6 +749,7 @@
         event: "408.6 ק״ג ב־60% — SQ7–SQ9.",
         enrichment: 60,
         stock60: 408.6,
+        stock20: 953.1,
         sq: 9.73,
         usPresident: "דונלד טראמפ",
         iranPresident: "מסעוד פזשכיאן",
@@ -745,6 +761,7 @@
         event: "440.9 ק״ג ב־60% — SQ10.",
         enrichment: 60,
         stock60: 440.9,
+        stock20: 1000.0,
         sq: 10.50,
         usPresident: "דונלד טראמפ",
         iranPresident: "מסעוד פזשכיאן",
@@ -756,6 +773,7 @@
         event: "המצב הפומבי האחרון — עדיין אומדן של 440.9 ק״ג ב־60%.",
         enrichment: 60,
         stock60: 440.9,
+        stock20: 1020.0,
         sq: 10.50,
         usPresident: "דונלד טראמפ",
         iranPresident: "מסעוד פזשכיאן",
@@ -781,27 +799,29 @@
       enrichment: {
         label: "רמת העשרה מקסימלית (%)",
         mobileLabel: "רמת העשרה (%)",
-        description: "מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60%.",
-        mobileDescription: "מ־JCPOA ל־20% ול־60%.",
+        description: "מראה מתי איראן עברה ממסגרת JCPOA ל־20% ואז ל־60% (ציר לוגריתמי).",
+        mobileDescription: "מ־JCPOA ל־20% ול־60% (לוג).",
         accessor: d => d.enrichment,
         max: 60,
-        tickStep: 10,
+        ticks: [0, 1, 3, 10, 20, 60],
         format: v => `${v.toFixed(v % 1 === 0 ? 0 : 2)}%`
       },
       stock60: {
-        label: "מלאי אורניום 60% (ק״ג)",
-        description: "כמות החומר המועשר ל־60% לפי נקודות הזמן הפומביות המרכזיות.",
+        label: "מלאי אורניום 60% + 20% (ק״ג)",
+        description: "השוואה בין מלאי 60% למלאי 20% בסקאלה לוגריתמית.",
         accessor: d => d.stock60,
-        max: 480,
-        tickStep: 80,
+        secondaryAccessor: d => d.stock20,
+        secondaryLabel: "מלאי 20%",
+        max: 1200,
+        ticks: [0, 10, 30, 100, 300, 1000],
         format: v => `${v.toFixed(1)} ק״ג`
       },
       sq: {
         label: "SQ משוער",
-        description: "חישוב בקירוב: מלאי 60% חלקי 42. זה מדד תיאורטי, לא נשק מבצעי.",
+        description: "חישוב בקירוב: מלאי 60% חלקי 42 (ציר לוגריתמי).",
         accessor: d => d.sq,
         max: 12,
-        tickStep: 2,
+        ticks: [0, 0.5, 1, 2, 4, 8, 12],
         format: v => v.toFixed(2)
       }
     };
@@ -845,7 +865,9 @@
     const xScale = ts => dims.margin.left + ((ts - tsMin) / (tsMax - tsMin)) * innerW;
     const yScale = (value, metric) => {
       const max = metricConfig[metric].max;
-      return dims.margin.top + innerH - (value / max) * innerH;
+      const safeValue = Math.max(0, value);
+      const ratio = Math.log10(safeValue + 1) / Math.log10(max + 1);
+      return dims.margin.top + innerH - ratio * innerH;
     };
 
     const mobileImportantDates = new Set([
@@ -909,10 +931,11 @@
       });
     }
 
-    function stepPathFromData(metric) {
+    function stepPathFromData(metric, accessorOverride) {
       const points = allDataForPath.map(d => {
         const x = xScale(toTs(d.date));
-        const y = yScale(metricConfig[metric].accessor(d), metric);
+        const accessor = accessorOverride || metricConfig[metric].accessor;
+        const y = yScale(accessor(d), metric);
         return [x, y];
       });
 
@@ -960,6 +983,7 @@
           <div>נשיא איראן<strong>${d.iranPresident}</strong></div>
           <div>רמת העשרה<strong>${d.enrichment.toFixed(d.enrichment % 1 === 0 ? 0 : 2)}%</strong></div>
           <div>מלאי 60%<strong>${d.stock60.toFixed(1)} ק״ג</strong></div>
+          <div>מלאי 20%<strong>${d.stock20.toFixed(1)} ק״ג</strong></div>
           <div>SQ משוער<strong>${d.sq.toFixed(2)}</strong></div>
           <div>מדד מוצג עכשיו<strong>${metricConfig[activeMetric].format(metricConfig[activeMetric].accessor(d))}</strong></div>
         </div>
@@ -1053,10 +1077,9 @@
         text.textContent = marker.label;
       });
 
-      const max = metricConfig[activeMetric].max;
-      const step = metricConfig[activeMetric].tickStep;
+      const ticks = metricConfig[activeMetric].ticks;
 
-      for (let v = 0; v <= max; v += step) {
+      ticks.forEach(v => {
         const y = yScale(v, activeMetric);
 
         createEl("line", {
@@ -1078,7 +1101,7 @@
           activeMetric === "enrichment" ? `${v}%` :
           activeMetric === "stock60" ? `${v}` :
           `${v}`;
-      }
+      });
 
       const yearTicks = getYearTicks();
 
@@ -1156,6 +1179,27 @@
         "stroke-linecap": "round",
         "stroke-linejoin": "round"
       }, svg);
+
+      if (activeMetric === "stock60") {
+        const secondaryPath = stepPathFromData("stock60", d => d.stock20);
+        createEl("path", {
+          d: secondaryPath,
+          fill: "none",
+          stroke: "rgba(245,158,11,0.2)",
+          "stroke-width": 9,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round"
+        }, svg);
+
+        createEl("path", {
+          d: secondaryPath,
+          fill: "none",
+          stroke: "var(--line-20)",
+          "stroke-width": 3,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round"
+        }, svg);
+      }
 
       const pointsToRender = mobile
         ? visibleData.filter((d, idx) => mobileImportantDates.has(d.date) || idx === activeIndex)
