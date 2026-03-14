@@ -366,6 +366,18 @@
       font-weight: 700;
     }
 
+
+    @media (min-width: 769px) {
+      .chart-scroll {
+        overflow-x: hidden;
+      }
+
+      .chart-inner {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
     @media (max-width: 1050px) {
       .layout {
         grid-template-columns: 1fr;
@@ -838,6 +850,7 @@
     const svg = document.getElementById("chart");
     const tooltip = document.getElementById("tooltip");
     const chartWrap = document.getElementById("chartWrap");
+    const chartScroll = document.getElementById("chartScroll");
     const timelineList = document.getElementById("timelineList");
     const chartTitle = document.getElementById("chartTitle");
     const chartDesc = document.getElementById("chartDesc");
@@ -892,6 +905,15 @@
     ]);
 
     const isMobileViewport = () => window.innerWidth <= 768;
+
+    function syncChartScrollMode() {
+      if (isMobileViewport()) {
+        chartScroll.style.overflowX = "auto";
+      } else {
+        chartScroll.style.overflowX = "hidden";
+        chartScroll.scrollLeft = 0;
+      }
+    }
 
     function getYearTicks() {
       return isMobileViewport()
@@ -1019,6 +1041,7 @@
     }
 
     function render() {
+      syncChartScrollMode();
       clearSvg();
 
       const metricMeta = metricConfig[activeMetric];
@@ -1306,9 +1329,11 @@
 
     window.addEventListener("resize", () => {
       hideTooltip();
+      syncChartScrollMode();
       render();
     });
 
+    syncChartScrollMode();
     render();
   </script>
 </body>
